@@ -22,6 +22,17 @@
 								};
 	return [codeTable objectForKey:language];
 }
+
+- (NSString *)appendCountryCodeIfNeeded:(NSString *)languageCode {
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 9.0) {
+        NSLocale *locale = [NSLocale currentLocale];
+        NSString *countryCode = [locale objectForKey:NSLocaleCountryCode];
+        return [NSString stringWithFormat:@"%@-%@", languageCode, countryCode];
+    } else {
+        return [languageCode copy];
+    }
+}
+
 //app inside change 
 - (void)switchLanguage {
 	//Sync AppleLanguages Info
