@@ -1,10 +1,104 @@
+## Introduction
 A good code style is benifit with reading and code review. For me, I follow the 
 language guide when coding with Objective-c.
 
-It's based on [github/objective-c-style-guide](https://github.com/github/objective-c-style-guide)
+Here are some of the documents from Apple that informed the style guide.  
 
-These guidelines build on Apple's existing [Coding Guidelines for Cocoa](https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/CodingGuidelines/CodingGuidelines.html).
-Unless explicitly contradicted below, assume that all of Apple's guidelines apply as well.
+one of these:
+
+* [The Objective-C Programming Language](http://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/ObjectiveC/Introduction/introObjectiveC.html)
+* [Cocoa Fundamentals Guide](https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/CocoaFundamentals/Introduction/Introduction.html)
+* [Coding Guidelines for Cocoa](https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/CodingGuidelines/CodingGuidelines.html)
+* [iOS App Programming Guide](http://developer.apple.com/library/ios/#documentation/iphone/conceptual/iphoneosprogrammingguide/Introduction/Introduction.html)
+* [github/objective-c-style-guide](https://github.com/github/objective-c-style-guide)
+
+## Booleans
+
+Never compare something directly to `YES`, because `YES` is defined as `1`, and a `BOOL` in Objective-C is a `CHAR` type that is 8 bits long (so a value of `11111110` will return `NO` if compared to `YES`).
+
+**For an object pointer:**
+
+```objc
+if (!someObject) {
+}
+
+if (someObject == nil) {
+}
+```
+
+**For a `BOOL` value:**
+
+```objc
+if (isAwesome)
+if (!someNumber.boolValue)
+if (someNumber.boolValue == NO)
+```
+**Not:**
+
+```objc
+if (isAwesome == YES) // Never do this.
+```
+
+If the name of a `BOOL` property is expressed as an adjective, the property’s name can omit the `is` prefix but should specify the conventional name for the getter.
+
+## Private Properties
+
+Private properties should be declared in class extensions (anonymous categories) in the implementation file of a class.
+
+**For example:**
+
+```objc
+@interface NYTAdvertisement ()
+
+@property (nonatomic, strong) GADBannerView *googleAdView;
+@property (nonatomic, strong) ADBannerView *iAdView;
+@property (nonatomic, strong) UIWebView *adXWebView;
+
+@end
+```
+
+## Bitmasks
+
+When working with bitmasks, use the `NS_OPTIONS` macro.
+
+**Example:**
+
+```objc
+typedef NS_OPTIONS(NSUInteger, NYTAdCategory) {
+    NYTAdCategoryAutos      = 1 << 0,
+    NYTAdCategoryJobs       = 1 << 1,
+    NYTAdCategoryRealState  = 1 << 2,
+    NYTAdCategoryTechnology = 1 << 3
+};
+```
+## Enumerated Types
+
+When using `enum`s, use the new fixed underlying type specification, which provides stronger type checking and code completion. The SDK includes a macro to facilitate and encourage use of fixed underlying types: `NS_ENUM()`.
+
+**Example:**
+
+```objc
+typedef NS_ENUM(NSInteger, NYTAdRequestState) {
+    NYTAdRequestStateInactive,
+    NYTAdRequestStateLoading
+};
+```
+
+## Singletons
+
+Singleton objects should use a thread-safe pattern for creating their shared instance.
+```objc
++ (instancetype)sharedInstance {
+    static id sharedInstance = nil;
+
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[[self class] alloc] init];
+    });
+
+    return sharedInstance;
+}
+```
 
 ## Whitespace
 
@@ -12,7 +106,7 @@ Unless explicitly contradicted below, assume that all of Apple's guidelines appl
  * End files with a newline.
  * Make liberal use of vertical whitespace to divide code into logical chunks.
  * Don’t leave trailing whitespace.
-    * Not even leading indentation on blank lines.
+ * Not even leading indentation on blank lines.
 
 ## Documentation and Organization
 
@@ -191,4 +285,22 @@ NSDictionary *keyedStuff = @{
  * Category methods should always be prefixed.
  * If you need to expose private methods for subclasses or unit testing, create a class extension named `Class+Private`.
 
+
+## Protocols
+
+In a [delegate or data source protocol](https://developer.apple.com/library/ios/documentation/General/Conceptual/CocoaEncyclopedia/DelegatesandDataSources/DelegatesandDataSources.html), the first parameter to each method should be the object sending the message.
+
+This helps disambiguate in cases when an object is the delegate for multiple similarly-typed objects, and it helps clarify intent to readers of a class implementing these delegate methods.
+
+**For example:**
+
+```objc
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
+```
+
+**Not:**
+
+```objc
+- (void)didSelectTableRowAtIndexPath:(NSIndexPath *)indexPath;
+```
 
