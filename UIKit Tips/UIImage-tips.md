@@ -1,7 +1,7 @@
 # UIImage tips
 
 
- #### - **Capture a view and save as UIImage.**
+ - #### **Capture a view and save as UIImage.**
 
 ```
 #import <QuartzCore/QuartzCore.h>
@@ -17,7 +17,7 @@
 }
 ```
 
-#### - **Set UIColor for UIImage**
+- #### **Set UIColor for UIImage**
 
 ```
 // By set tint color of UIImageView, can set image color. 
